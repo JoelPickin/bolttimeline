@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --era-1950-bg: #222831;
+  --era-1950-accent: #76ABAE;
+  --era-1970-bg: #103100;
+  --era-1970-text: #33FF00;
+  --era-1990-bg: #5D12D2;
+  --era-1990-accent: #FF6B6B;
+  --era-2000-bg: #4a86e8;
+  --era-2000-accent: #ff9900;
+  --era-2020-bg: #0F0F12;
+  --era-2020-accent: #10B981;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans, Arial, Helvetica, sans-serif);
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+.timeline-container {
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  perspective: 10px;
+  scroll-behavior: smooth;
+}
+
+.era {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  transition: background-color 0.3s ease;
+}
+
+/* Scroll progress indicator */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--era-1950-accent), var(--era-2020-accent));
+  z-index: 100;
+}
+
+/* Era-specific animations */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes glow {
+  0%, 100% { filter: drop-shadow(0 0 2px currentColor); }
+  50% { filter: drop-shadow(0 0 8px currentColor); }
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+.typing-animation {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid;
+  width: 0;
+  animation: typing 3.5s steps(40, end) forwards, blink 1s step-end infinite;
+}
+
+.hidden {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s;
+}
+
+.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-marquee {
+  animation: marquee 15s linear infinite;
+}
+
+/* Countdown Timer Styles */
+.time-unit {
+  background-color: #1f2937;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  min-width: 5rem;
+  text-align: center;
+}
+
+.time-value {
+  font-size: 1.5rem;
+  color: #10B981;
+  font-weight: bold;
+}
+
+.time-label {
+  font-size: 0.75rem;
+  color: #9CA3AF;
+  margin-top: 0.25rem;
+}
