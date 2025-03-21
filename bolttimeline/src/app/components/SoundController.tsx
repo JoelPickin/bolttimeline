@@ -1,82 +1,47 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 interface SoundControllerProps {
-  currentEra: number;
   isMuted: boolean;
   toggleMute: () => void;
 }
 
 const SoundController: React.FC<SoundControllerProps> = ({ 
-  currentEra, 
   isMuted, 
   toggleMute 
 }) => {
   // Sound references
-  const punchCardSound = useRef<HTMLAudioElement | null>(null);
-  const terminalSound = useRef<HTMLAudioElement | null>(null);
-  const dialupSound = useRef<HTMLAudioElement | null>(null);
-  const webClickSound = useRef<HTMLAudioElement | null>(null);
-  const aiSound = useRef<HTMLAudioElement | null>(null);
+  const ambientSound = useRef<HTMLAudioElement | null>(null);
   
   useEffect(() => {
     // Initialize audio elements
     if (typeof window !== 'undefined') {
-      punchCardSound.current = new Audio('/sounds/punchcard.mp3');
-      terminalSound.current = new Audio('/sounds/terminal.mp3');
-      dialupSound.current = new Audio('/sounds/dialup.mp3');
-      webClickSound.current = new Audio('/sounds/webclick.mp3');
-      aiSound.current = new Audio('/sounds/ai.mp3');
-      
-      // Set loop and volume
-      [punchCardSound, terminalSound, dialupSound, webClickSound, aiSound].forEach(sound => {
-        if (sound.current) {
-          sound.current.volume = 0.3;
+      try {
+        ambientSound.current = new Audio('/sounds/ambient.mp3');
+        
+        // Set loop and volume
+        if (ambientSound.current) {
+          ambientSound.current.volume = 0.3;
+          ambientSound.current.loop = true;
         }
-      });
+      } catch (error) {
+        console.log('Error initializing audio:', error);
+      }
     }
     
     // Cleanup
     return () => {
-      [punchCardSound, terminalSound, dialupSound, webClickSound, aiSound].forEach(sound => {
-        sound.current?.pause();
-      });
+      ambientSound.current?.pause();
     };
   }, []);
   
-  // Play era-specific sound
-  const playEraSound = (era: number) => {
-    if (isMuted) return;
-    
-    // Stop all sounds first
-    [punchCardSound, terminalSound, dialupSound, webClickSound, aiSound].forEach(sound => {
-      sound.current?.pause();
-      if (sound.current) sound.current.currentTime = 0;
-    });
-    
-    // Play the appropriate sound
-    switch (era) {
-      case 0:
-        punchCardSound.current?.play();
-        break;
-      case 1:
-        terminalSound.current?.play();
-        break;
-      case 2:
-        dialupSound.current?.play();
-        break;
-      case 3:
-        webClickSound.current?.play();
-        break;
-      case 4:
-        aiSound.current?.play();
-        break;
-    }
-  };
-  
-  // Play sound when era changes
+  // Control sound based on mute state
   useEffect(() => {
-    playEraSound(currentEra);
-  }, [currentEra, isMuted]);
+    if (isMuted) {
+      ambientSound.current?.pause();
+    } else {
+      ambientSound.current?.play().catch(e => console.log("Audio play failed:", e));
+    }
+  }, [isMuted]);
   
   return (
     <button 

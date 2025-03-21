@@ -1,0 +1,13 @@
+{
+  "name": "hackathon-timeline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The World's Largest Hackathon - An interactive timeline experience showcasing the evolution of coding",
+  "author": "Bolt.new",
+  "scripts": {
+    "dev": "next dev"
+  },
+  "dependencies": {
+    "framer-motion": "^12.5.0"
+  }
+}
