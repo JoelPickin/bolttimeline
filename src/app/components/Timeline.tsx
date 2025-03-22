@@ -8,6 +8,8 @@ import PunchCardEra from './eras/PunchCardEra';
 import TerminalEra from './eras/TerminalEra';
 import DotComEra from './eras/DotComEra';
 import Web2Era from './eras/Web2Era';
+import AIEra from './eras/AIEra';
+import FutureEra from './eras/FutureEra';
 import TimelineDivider from './TimelineDivider';
 
 // Temporary dummy components for missing eras
@@ -21,10 +23,9 @@ const DummyEra = ({ onEggCollect, isActive }: any) => (
 );
 
 const WebEra = DummyEra;
-const AIEra = DummyEra;
 
 // Types
-type EraId = 'punchcard' | 'terminal' | 'dotcom' | 'web2' | 'ai';
+type EraId = 'punchcard' | 'terminal' | 'dotcom' | 'web2' | 'ai' | 'future';
 type DividerId = 'divider-1950s' | 'divider-1970s' | 'divider-1990s' | 'divider-2000s' | 'divider-2025' | 'divider-future';
 
 interface Era {
@@ -120,6 +121,12 @@ const Timeline = () => {
       title: 'AI Era',
       years: '2010s-Future',
       component: AIEra
+    },
+    {
+      id: 'future',
+      title: 'Future Era',
+      years: 'Future',
+      component: FutureEra
     }
   ];
   
@@ -134,45 +141,70 @@ const Timeline = () => {
     'web2-egg-4': 'You encountered a classic Web 2.0 comment bug!',
     'web2-egg-5': 'You found the infamous auto-playing profile song!',
     'web2-egg-6': 'You discovered the Facebook poke feature!',
-    'ai-egg': 'You discovered the prompt that built this webpage!'
+    'ai-egg': 'You discovered the prompt that built this webpage!',
+    'future-egg': 'You disconnected from the neural interface... congratulations on returning to reality!'
   };
   
   // Track which era is visible as user scrolls
   useEffect(() => {
+    // Only run this on the client
+    if (typeof window === 'undefined') return;
+    
     const handleScroll = () => {
       // Find which era is most visible in the viewport
       let maxVisibleArea = 0;
       let mostVisibleEraId: EraId = activeEra;
       
-      Object.entries(eraRefs.current).forEach(([eraId, element]) => {
+      // Get all era elements that have refs
+      const eraElements = Object.entries(eraRefs.current).filter(([_, element]) => !!element);
+      
+      if (eraElements.length === 0) {
+        console.log("No era elements found with refs");
+        return;
+      }
+      
+      // Check each era element for visibility
+      eraElements.forEach(([eraId, element]) => {
         if (!element) return;
         
         const rect = element.getBoundingClientRect();
         const visibleHeight = Math.min(rect.bottom, window.innerHeight) - 
                             Math.max(rect.top, 0);
         
-        if (visibleHeight > maxVisibleArea) {
-          maxVisibleArea = visibleHeight;
-          mostVisibleEraId = eraId as EraId;
+        // Only consider elements that are actually visible
+        if (visibleHeight > 0) {
+          console.log(`Era ${eraId} visible area: ${visibleHeight}`);
+          
+          if (visibleHeight > maxVisibleArea) {
+            maxVisibleArea = visibleHeight;
+            mostVisibleEraId = eraId as EraId;
+          }
         }
       });
       
       if (mostVisibleEraId !== activeEra) {
+        console.log(`Changing active era from ${activeEra} to ${mostVisibleEraId}`);
         setActiveEra(mostVisibleEraId);
       }
     };
     
     window.addEventListener('scroll', handleScroll);
-    // Initial check
-    handleScroll();
+    
+    // Force an initial check after a small delay to ensure refs are set
+    const initialCheckTimer = setTimeout(() => {
+      console.log("Performing initial visibility check");
+      handleScroll();
+    }, 1000);
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      clearTimeout(initialCheckTimer);
     };
   }, [activeEra]);
   
   // Handle egg collection
   const handleEggCollect = (eggId: string) => {
+    console.log(`Collecting egg: ${eggId}`);
     if (!collectedEggs.includes(eggId)) {
       setCollectedEggs(prev => [...prev, eggId]);
       
@@ -221,10 +253,24 @@ const Timeline = () => {
                   onClick={() => navigateToDivider(divider.id)}
                 >
                   <div 
-                    className="w-2 h-2 rounded-full bg-[#ff00ff] opacity-50 group-hover:opacity-100 transition-all duration-300"
+                    className={`w-2 h-2 rounded-full opacity-50 group-hover:opacity-100 transition-all duration-300 ${
+                      divider.id === 'divider-1950s' ? 'bg-gray-400' :
+                      divider.id === 'divider-1970s' ? 'bg-[#33FF33]' :
+                      divider.id === 'divider-1990s' ? 'bg-blue-400' :
+                      divider.id === 'divider-2000s' ? 'bg-blue-500' :
+                      divider.id === 'divider-2025' ? 'bg-purple-500' :
+                      divider.id === 'divider-future' ? 'bg-black' : 'bg-[#ff00ff]'
+                    }`}
                   />
                   <div 
-                    className="ml-3 text-sm font-medium text-gray-500 group-hover:text-[#ff00ff] transition-all duration-300"
+                    className={`ml-3 text-sm font-medium transition-all duration-300 group-hover:text-gray-200 ${
+                      divider.id === 'divider-1950s' ? 'text-gray-500 group-hover:text-gray-300' :
+                      divider.id === 'divider-1970s' ? 'text-gray-500 group-hover:text-[#33FF33]' :
+                      divider.id === 'divider-1990s' ? 'text-gray-500 group-hover:text-blue-400' :
+                      divider.id === 'divider-2000s' ? 'text-gray-500 group-hover:text-blue-500' :
+                      divider.id === 'divider-2025' ? 'text-gray-500 group-hover:text-purple-500' :
+                      divider.id === 'divider-future' ? 'text-gray-500 group-hover:text-black' : 'text-gray-500'
+                    }`}
                   >
                     {divider.period}
                   </div>
@@ -356,6 +402,7 @@ const Timeline = () => {
         
         {/* AI era */}
         <div 
+          id="ai-era"
           ref={el => { if (el) eraRefs.current['ai'] = el; }}
           className="w-full"
         >
@@ -370,12 +417,24 @@ const Timeline = () => {
           <TimelineDivider 
             period={dividers[5].period} 
             description={dividers[5].description}
-            era="ai"
+            era="future"
           />
         </div>
         
-        {/* Final blank space for future content */}
-        <div className="h-32 md:h-64 w-full bg-gradient-to-b from-black to-transparent" />
+        {/* Future Era */}
+        <div 
+          id="future-era"
+          ref={el => { if (el) eraRefs.current['future'] = el; }}
+          className="w-full"
+        >
+          <FutureEra 
+            onEggCollect={handleEggCollect} 
+            isActive={activeEra === 'future'} 
+          />
+        </div>
+        
+        {/* Final blank space */}
+        <div className="h-32 md:h-64 w-full bg-gradient-to-b from-white to-transparent" />
       </div>
       
       {/* Easter egg notification */}

@@ -6,7 +6,7 @@ import { useRef } from 'react';
 interface TimelineDividerProps {
   period: string;
   description?: string;
-  era?: 'punchcard' | 'terminal' | 'dotcom' | 'web2' | 'ai';
+  era?: 'punchcard' | 'terminal' | 'dotcom' | 'web2' | 'ai' | 'future';
 }
 
 const TimelineDivider: React.FC<TimelineDividerProps> = ({ period, description, era }) => {
@@ -16,10 +16,10 @@ const TimelineDivider: React.FC<TimelineDividerProps> = ({ period, description, 
   // Era-specific styles
   const eraStyles = {
     punchcard: {
-      background: 'from-gray-900 via-gray-800 to-gray-900',
-      text: 'from-gray-300 to-gray-100',
-      border: 'border-gray-700',
-      accent: '#9CA3AF'
+      background: 'from-[#E8E0D0] via-[#E8E0D0] to-[#E8E0D0]',
+      text: 'from-black to-black',
+      border: 'border-[#D0C8B8]',
+      accent: '#8B7355'
     },
     terminal: {
       background: 'from-black via-black to-black',
@@ -28,22 +28,28 @@ const TimelineDivider: React.FC<TimelineDividerProps> = ({ period, description, 
       accent: '#33FF33'
     },
     dotcom: {
-      background: 'from-black via-blue-900/20 to-black',
-      text: 'from-blue-400 to-blue-200',
-      border: 'border-blue-900/30',
-      accent: '#60A5FA'
+      background: 'from-blue-950 via-indigo-900 to-blue-950',
+      text: 'from-cyan-300 to-indigo-200',
+      border: 'border-cyan-600',
+      accent: '#38bdf8'
     },
     web2: {
-      background: 'from-black via-purple-900/20 to-black',
-      text: 'from-purple-400 to-purple-200',
-      border: 'border-purple-900/30',
-      accent: '#A78BFA'
+      background: 'from-[#1877F2] via-[#1877F2] to-[#1877F2]',
+      text: 'from-white to-white',
+      border: 'border-[#166FE5]',
+      accent: '#FFFFFF'
     },
     ai: {
-      background: 'from-black via-indigo-900/20 to-black',
-      text: 'from-indigo-400 to-indigo-200',
-      border: 'border-indigo-900/30',
-      accent: '#818CF8'
+      background: 'from-black via-black to-black',
+      text: 'from-purple-400 to-cyan-400',
+      border: 'border-purple-700',
+      accent: '#C084FC'
+    },
+    future: {
+      background: 'from-white via-white to-white',
+      text: 'from-black to-black',
+      border: 'border-black/30',
+      accent: '#000000'
     }
   };
 
@@ -82,7 +88,13 @@ const TimelineDivider: React.FC<TimelineDividerProps> = ({ period, description, 
             initial={{ y: 20, opacity: 0 }}
             animate={isInView ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className={`text-3xl md:text-4xl font-medium text-transparent bg-clip-text bg-gradient-to-r ${currentStyle.text} mb-1`}
+            className={`text-3xl md:text-4xl font-medium mb-1 ${
+              era === 'punchcard' ? 'font-mono font-bold tracking-wide text-black' : 
+              era === 'dotcom' ? 'font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r ' + currentStyle.text : 
+              era === 'web2' ? 'font-sans font-bold tracking-normal text-transparent bg-clip-text bg-gradient-to-r ' + currentStyle.text : 
+              era === 'future' ? 'text-black' :
+              'text-transparent bg-clip-text bg-gradient-to-r ' + currentStyle.text
+            }`}
           >
             {period}
           </motion.h2>
@@ -92,7 +104,13 @@ const TimelineDivider: React.FC<TimelineDividerProps> = ({ period, description, 
               initial={{ y: 20, opacity: 0 }}
               animate={isInView ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
-              className={`text-sm md:text-base opacity-70 max-w-2xl mx-auto ${currentStyle.text}`}
+              className={`text-sm md:text-base max-w-2xl mx-auto ${
+                era === 'punchcard' ? 'font-mono font-semibold opacity-90 text-black' : 
+                era === 'dotcom' ? 'font-semibold opacity-90 text-transparent bg-clip-text bg-gradient-to-r ' + currentStyle.text : 
+                era === 'web2' ? 'font-sans font-semibold opacity-100 text-transparent bg-clip-text bg-gradient-to-r ' + currentStyle.text : 
+                era === 'future' ? 'text-black opacity-70' :
+                'opacity-70 text-transparent bg-clip-text bg-gradient-to-r ' + currentStyle.text
+              }`}
             >
               {description}
             </motion.p>
